@@ -9,14 +9,17 @@ class Client(models.Model):
 
 
 class Product(models.Model):
-    pass
+    product_code = models.IntegerField()
+    product_name = models.CharField(max_length=50)
+    product_img = models.CharField(max_length=300, null=True, blank=True)
 
 
 class Cart(models.Model):
-    product = models.ManyToManyField(Product)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     product_quantity = models.IntegerField(default=0)
+    product_desc = models.CharField(max_length=300, null=True, blank=True)
 
 
-class Commande(models.Model):
+class Order(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
