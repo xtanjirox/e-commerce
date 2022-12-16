@@ -1,0 +1,34 @@
+
+{% extends "layouts/base.html" %}
+
+{% block title %} Login {% endblock title %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="page-inner">
+    <div class="page-header">   
+        <div style="width: 100%;margin-top: 25%;">
+            {% load socialaccount %}
+            {% if user.is_authenticated %}
+            <p>Welcome, {{ user.username }} !</p>
+            {% else %}
+                <div class="col-md-6 ml-auto mr-auto">
+                    <div class="card">
+                        <form action="{% provider_login_url 'google' method = 'oauth2' %}", method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-lg btn-google btn-block text-uppercase btn-outline" ><img src="https://img.icons8.com/color/16/000000/google-logo.png"> Sigin Using Google</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>   
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}{% endblock javascripts %}
