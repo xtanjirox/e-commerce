@@ -1,0 +1,503 @@
+{% extends "layouts/base.html" %}
+{% load widget_tweaks %}
+
+{% block title %} Widgets {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+	.hide {
+		position: absolute;
+		top: -1px;
+		left: -1px;
+		width: 1px;
+		height: 1px;
+	}
+</style>
+<style>  
+    table {  
+        border-spacing: 0;  
+        width: 100%;  
+    }  
+      
+    td {  
+        border-bottom: 1px solid #eee;  
+        background: #ddd;  
+        color: #000;  
+        padding: 10px 25px;  
+    }  
+      
+    th {  
+        background: #87CEFA;  
+        padding: 10px 25px;  
+    }  
+      
+    td + td {  
+        border-left: 1px solid #eee;  
+    }  
+</style> 
+<style>
+	 .popup-image{
+		display: none; /* Hidden by default */
+		position: fixed; /* Stay in place */
+		z-index: 1000; /* Sit on top */
+		padding-top: 100px; /* Location of the box */
+		left: 0;
+		top: 0;
+		width: 100%; /* Full width */
+		height: 100%; /* Full height */
+		overflow: auto; /* Enable scroll if needed */
+		background-color: rgb(0,0,0); /* Fallback color */
+		background-color: rgba(0,0,0,0.9);
+	}
+	 .popup-image span{
+		position: absolute;
+		top: O; right: 10px;
+		font-size: 40px;
+		font-weight: bolder;
+		color: #fff;
+		cursor: pointer;
+		z-index: 100;
+	}
+
+	 .popup-image img{
+		margin: auto;
+		margin-left: 37%;
+		border: 5px solid #fff;
+		border-radius: 5px;
+		width: 100%;
+		max-width: 550px;
+		object-fit: cover;
+	}
+
+	@media(max-width:700px){
+		.popup-image img{
+			width: 95%;
+		}
+	}
+</style>
+<link rel="stylesheet" href="/static/assets/css/image-zoom.css" />
+<link rel="stylesheet" type="text/css" href="https://rawgit.com/dimsemenov/Magnific-Popup/master/dist/magnific-popup.css">  
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="content">
+	<div class="popup-image">
+		<span>&times;</span>
+		<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Crystal_Clear_kdm_user_female.svg/2048px-Crystal_Clear_kdm_user_female.svg.png" alt="">
+	</div>
+	<div class="page-inner">
+		<iframe name="correct_matching_frame" style="display:none;"></iframe>
+
+		<!-- Card -->
+		<h4 class="page-title">Image matching</h4>
+		<div class="row">
+			<div class="col-md-12">
+				<form method="POST" action="" id="formMatchingTable">
+					{% csrf_token %}
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-md-6 col-lg-4">
+									<div class="form-group">
+										<input name="filter_table" value="yes" style="display: none;"></input>
+										{{ formMatchingTable.client.label_tag }}
+										{% render_field formMatchingTable.client data-live-search="true" class="form-control selectpicker form-select client_element" autocomplete="off" hx-get="/retailers/" hx-target="#id_retailer" %}
+									</div>
+								</div>
+
+								<div id="datepicker"></div>
+								
+								<div class="col-md-6 col-lg-4">
+									<div class="form-group">
+										{{ formMatchingTable.retailer.label_tag }}
+										{% render_field formMatchingTable.retailer data-live-search="true" autocomplete="off" class="form-control selectpicker form-select retailer_elements" %}
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-4">
+									<div class="form-group">
+										<label class="exampleFormControlSelect1" for="week">Period</label>
+										<input class="inputweek form-control" type="week" name="week" id="camp-week"
+											min="2018-W1" value="{{ week_date }}" required>
+									</div>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-md-6 col-lg-4">
+									<div class="form-group">
+										<label for="exampleFormControlSelect1">Algorithms</label>
+										{{ formMatchingTable.algo_name }}
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-4">
+									<div class="form-group">
+										<label for="exampleFormControlSelect1">Is match</label>
+										{{ formMatchingTable.is_match }}
+									</div>
+								</div>
+								<div class="col-md-6 col-lg-4">
+									<div class="form-group">
+										<label for="exampleFormControlSelect1">EAN</label>
+										{{ formMatchingTable.ean }}
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="card-action">
+							<button type="button" id="addRowButton2" class="btn btn-success">Submit</button>
+							<!--   <button class="btn btn-danger">Cancel</button> -->
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		{% if formated_matching %}
+		<div class="row">
+			<div class="col-sm-6 col-md-3">
+				<div class="card card-stats card-info card-round">
+					<div class="card-body">
+						<div class="row">
+							<div class="col-5">
+								<div class="icon-big text-center">
+									<i class="flaticon-settings"></i>
+								</div>
+							</div>
+							<div class="col-5 col-stats">
+								<div class="numbers">
+									<p class="card-category">Operations</p>
+									<h4 class="card-title">{{ stat_matching.operations }}</h4>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 col-md-3">
+				<div class="card card-stats card-success card-round">
+					<div class="card-body">
+						<div class="row">
+							<div class="col-5">
+								<div class="icon-big text-center">
+									<i class="flaticon-success"></i>
+								</div>
+							</div>
+							<div class="col-7 col-stats">
+								<div class="numbers">
+									<p class="card-category">Matches</p>
+									<h4 class="card-title">{{ stat_matching.matches }}</h4>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 col-md-3">
+				<div class="card card-stats card-danger card-round">
+					<div class="card-body ">
+						<div class="row">
+							<div class="col-5">
+								<div class="icon-big text-center">
+									<i class="flaticon-error"></i>
+								</div>
+							</div>
+							<div class="col-7 col-stats">
+								<div class="numbers">
+									<p class="card-category">Non Matches</p>
+									<h4 class="card-title">{{ stat_matching.not_matches }}</h4>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 col-md-3">
+				<div class="card card-stats card-warning card-round">
+					<div class="card-body ">
+						<div class="row">
+							<div class="col-5">
+								<div class="icon-big text-center">
+									<i class="flaticon-round"></i>
+								</div>
+							</div>
+							<div class="col-7 col-stats">
+								<div class="numbers">
+									<p class="card-category">Not Sure</p>
+									<h4 class="card-title">{{ stat_matching.not_sure }}</h4>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% for ean, pairs in formated_matching.items %}
+		<div class="card card-dark bg-image-box-gradient-big" style="width: 100%;height: 90;">
+			<div class="form-group">
+				<label for="disableinput">EAN : {{ ean }}</label>
+			</div>
+		<div class="row" style="margin-left: 10px;">
+			<!-- Start Client -->
+			<div class="col-4 scroll" style="height: 500px;">
+				<div class="row" style="margin: 20px;">
+					{% for client_element in pairs.clients %}
+						<div class="col-6">
+							<div class="card card-dark bg-image-box-gradient">
+								<div class="card-body">
+									<center>
+										<img style="margin-left: 0 auto; max-width: 250px; width: 100%; height: auto;"
+										src="{{ client_element.image.url }}" alt="Visa Logo" class="image" />
+										<h3 class="fw-bold mb-1 text-title-retcli">{{ client_element.client.client_name }}</h3>
+									</center>
+										<center>
+											<h5 class="fw-bold mb-1 text-title-retcli">{{ client_element.image_type }} </h5>
+											<h5 class="fw-bold mb-1 text-title-retcli" style="margin-left: auto; margin-right: 0;">{{ client_element.image_caractersitics }}</h5>	
+										</center>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+			<!-- End client -->
+			
+			<!-- Start Retailer -->
+			<div class="col scroll" style="height: 600px">
+				<div class="row" style="margin-right: 20px;">
+					{% for refpe, retailer_image in pairs.retailers.items %}
+						<div class="col-5">
+							<div class="card card-dark bg-image-box-gradient">
+								<div class="card-body">
+									<div class="row">										
+										<div class="col-md-6">
+											<div style="margin-top: 10%;" id="btns_matching_{{ retailer_image.matching_id_element.id }}">
+												{% for charcter, value in retailer_image.ratings.items %}
+												{% if value == "100" %}
+													<button class="btn btn-round btn-xs btn-success" id="tag_{{ retailer_image.matching_id_element.id }}_{{ charcter }}">
+												{% elif value == "50" %}
+													<button class="btn btn-round btn-xs btn-warning" id="tag_{{ retailer_image.matching_id_element.id }}_{{ charcter }}">
+												{% else %}
+													<button class="btn btn-round btn-xs btn-danger" id="tag_{{ retailer_image.matching_id_element.id }}_{{ charcter }}">
+												{% endif %}
+														{{ charcter }}
+													</button>
+												{% endfor  %}
+											</div>
+										</div>
+										
+										<div class="col-md-6 ml-auto">
+											<div class="form-group">	
+												<form action="" method="POST" target="correct_matching_frame">
+													{% csrf_token %}
+													<input name="matching_element_id" value="{{ retailer_image.matching_id_element.id }}" style="display: none;"></input>
+													<select onchange="myFunction(this.form)" class="form-control form-control-sm" id="formGroupDefaultSelect" name="selected_correction">
+														<option value="_" selected="true" disabled="disabled">Correct Matching</option>
+														<option value="FOP_match">Match FOP</option>
+														<option value="HERO_match">Match Hero</option>
+														<option value="not_match">Not Match</option>
+													</select>
+												</form>
+											</div>
+										</div>
+									</div>
+									</br>
+									<center>
+										<img style="margin-left: 0 auto; max-width: 150px; height: auto;"
+									src="{{ retailer_image.retailer_image_element.image_link }}" alt="Visa Logo" class="image"">
+										<h3 class="fw-bold mb-1 text-title-retcli">{{ retailer_image.retailer_image_element.produit.retailer.retailer_name }}</h3>
+										<h6 class="fw-bold mb-1 text-title-retcli">Refpe : {{ retailer_image.retailer_image_element.produit.pe_refpe }}</h6>
+									</center>
+									
+									<div class="row" style="margin-right: 2px;margin-left: 2px;">
+											<p class="fw-bold mb-1 text-title-retcli">{{ retailer_image.retailer_image_element.image_type }} </p>
+											<p id="algo_matching_tag_{{ retailer_image.matching_id_element.id }}" class="fw-bold mb-1 text-title-retcli" style="margin-left: auto; margin-right: 0;">{{ retailer_image.matching_id_element.algo_name }} </p>
+									</div>
+									<div class="row" style="margin-right: 2px;margin-left: 2px;">
+										<h6 id="caractersitics_matching_tag_{{ retailer_image.matching_id_element.id }}" class="fw-bold mb-1 text-title-retcli"> {{ retailer_image.retailer_image_element.image_caractersitics }}</h6>
+										<h6 id="score_matching_tag_{{ retailer_image.matching_id_element.id }}" class="fw-bold mb-1 text-title-retcli" style="margin-left: auto; margin-right: 0;"> {% if retailer_image.matching_id_element.matching_score %} {{ retailer_image.matching_id_element.matching_score }} {% endif %}</h6>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+			<!-- End retailer -->
+		</div>
+	</div>
+		{% endfor %}
+		{% endif %}
+		{% if page_obj %}
+		<div class="row" style="margin-left: 40%;">
+			<ul class="pagination pg-primary">
+				{% if page_obj.has_previous %}
+					<li class="page-item">
+						<a class="page-link" href="?page=1" aria-label="Previous">
+							<span aria-hidden="true">«</span>
+							<span class="sr-only">Previous</span>
+						</a>
+					</li>
+					<li class="page-item">
+						<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+							<span aria-hidden="true">{{ page_obj.previous_page_number }}</span>
+							<span class="sr-only">Previous</span>
+						</a>
+					</li>
+				{% endif %}
+				<li class="page-item active"><a class="page-link" href="?page={{ page_obj.number }}">{{ page_obj.number }}</a></li>
+	
+				{% if page_obj.has_next %}
+					<li class="page-item">
+						<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+							<span aria-hidden="true">{{ page_obj.next_page_number }}</span>
+							<span class="sr-only">Next</span>
+						</a>
+					</li>
+					<li class="page-item">
+						<a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Next">
+							<span aria-hidden="true">»</span>
+							<span class="sr-only">Next</span>
+						</a>
+					</li>
+				{% endif %}
+			</ul>
+		</div>
+		{% endif %}
+	</div>
+	
+</div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script>
+	$(document).ready(function() {
+		$('.selectpicker').selectpicker('refresh');
+	})
+</script>
+
+
+<script>
+	$(document).ready(function () {
+		$('#addRowButton2').click(function (e) {
+			var form = document.getElementById("formMatchingTable");
+			form.submit(function (e) {
+			});
+		});
+	});
+
+</script>
+
+<script>
+	$(document).ready(function () {
+		$('.mdb-select').materialSelect();
+	});
+	var date = $('#datepicker').datepicker({ dateFormat: 'dd-mm-yy' }).val();
+
+</script>
+<script>
+$('.client_element').change(function() {
+    setTimeout(function(){
+		var selectObj=document.getElementById('id_retailer');
+		var options=selectObj.options;
+		for(var i=0; i<options.length; i++) {
+    options[i].selected=true;
+ }
+		$('.retailer_elements').selectpicker('refresh');
+
+}, 500);
+    ;
+	})
+</script>
+<script>
+	function myFunction(form_variable) {
+		var card_id = form_variable.elements["matching_element_id"].value;
+		var correct_match = form_variable.elements["formGroupDefaultSelect"].value;
+		var text_algo = document.getElementById("algo_matching_tag_"+card_id);
+		var score_algo = document.getElementById("score_matching_tag_"+card_id);
+
+		var btn_matching = document.getElementById("btns_matching_"+card_id).querySelectorAll(".btn");
+
+		if (correct_match == "not_match"){
+			for(btn of btn_matching){
+				btn.className = "btn btn-round btn-xs btn-danger";
+			}
+		} else {
+			var correct_character = (correct_match.split('_')[0]).toUpperCase();
+			for(btn of btn_matching){
+				console.log(btn);
+				if(btn.id == "tag_"+card_id+"_"+correct_character){
+					btn.className = "btn btn-round btn-xs btn-success";
+				}else{
+					btn.className = "btn btn-round btn-xs btn-danger";
+				}
+			}
+			var btn = document.getElementById("tag_"+card_id+correct_character);
+			var span = document.getElementById("span_matching_tag_"+card_id);
+			var text_algo = document.getElementById("algo_matching_tag_"+card_id)
+			var text_caractersitics_matching_tag = document.getElementById("caractersitics_matching_tag_"+card_id);
+			
+			text_caractersitics_matching_tag.innerHTML = (correct_match.split('_')[0]).toUpperCase();
+		}
+		
+		text_algo.innerHTML = "Manual";
+		score_algo.innerHTML = "";
+
+		form_variable.submit();
+	}
+</script>
+
+<script>
+	$(document).ready(function() {
+  $('.image-link').magnificPopup({type:'image'});
+});
+</script>
+<style>
+
+input[type="text"]:disabled {
+	background-color: brown;
+}
+
+.scroll {
+    position: relative;
+	overflow-y: scroll;
+	scrollbar-color: rebeccapurple gray;
+  scrollbar-width: auto;
+}
+</style>
+
+<!-- Latest compiled and minified JavaScript -->
+<!-- (Optional) Latest compiled and minified JavaScript translation files -->
+<!-- Atlantis DEMO methods, don't include it in your project! -->
+<script src="/static/assets/js/setting-demo.js"></script>
+
+<script src="/static/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+
+
+<!-- jQuery 1.7.2+ or Zepto.js 1.0+ -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<script src="/static/assets/js/image-zoom.min.js"></script>
+
+<script>
+	document.querySelectorAll('.card-body img').forEach(image => {
+		image.onclick = () => {
+			window.scrollTo(window.pageXOffset,window.pageYOffset);
+			document.querySelector('.popup-image').style.display = 'block';
+			document.querySelector('.popup-image img').src = image.getAttribute('src');
+		}
+		
+	});
+	document.querySelector('.popup-image span').onclick = () => {
+		document.querySelector('.popup-image').style.display = 'none';
+	}
+</script>
+<!-- Latest compiled and minified CSS -->
+<!-- Latest compiled and minified CSS -->
+
+<!-- Latest compiled and minified JavaScript -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/css/bootstrap-select.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/js/bootstrap-select.min.js"></script>{% endblock javascripts %}

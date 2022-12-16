@@ -1,0 +1,565 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+			
+	<div class="content">
+		<div class="panel-header bg-primary-gradient">
+			<div class="page-inner py-5">
+				<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+					<div>
+						<h2 class="text-white pb-2 fw-bold">Global overview</h2>
+						
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<div class="page-inner mt--5">
+			<div class="row mt--2">
+				<div class="col-md-6">
+					<div class="card full-height">
+						<div class="card-body">
+							<div class="card-title">Retailers images / period</div>
+							<div class="row py-3">
+								<div class="col-md-4 d-flex flex-column justify-content-around">
+									<div>
+										<h6 class="fw-bold text-uppercase text-success op-8">Total images</h6>
+										<h3 class="fw-bold">{{ retailer_total_image }}</h3>
+									</div>
+									<div>
+										<h6 class="fw-bold text-uppercase text-danger op-8">Current period ({{ current_period }}) images</h6>
+										<h3 class="fw-bold">{{ retailer_current_period }}</h3>
+									</div>
+								</div>
+								<div class="col-md-8">
+									<div id="chart-container">
+										<canvas id="totalRetailerChart"></canvas>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card full-height">
+						<div class="card-body">
+							<div class="card-title">Clients images / period</div>
+							<div class="row py-3">
+								<div class="col-md-4 d-flex flex-column justify-content-around">
+									<div>
+										<h6 class="fw-bold text-uppercase text-success op-8">Total images</h6>
+										<h3 class="fw-bold">{{ client_total_image }}</h3>
+									</div>
+									<div>
+										<h6 class="fw-bold text-uppercase text-danger op-8">Current period ({{ current_period }}) images</h6>
+										<h3 class="fw-bold">{{ client_current_period }}</h3>
+									</div>
+								</div>
+								<div class="col-md-8">
+									<div id="chart-container">
+										<canvas id="totalClientChart"></canvas>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-head-row">
+								<div class="card-title">Matching / algo and period</div>
+								<div class="card-tools">
+									<a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+										<span class="btn-label">
+											<i class="fa fa-pencil"></i>
+										</span>
+										Export
+									</a>
+									<a href="#" class="btn btn-info btn-border btn-round btn-sm">
+										<span class="btn-label">
+											<i class="fa fa-print"></i>
+										</span>
+										Print
+									</a>
+								</div>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="chart-container" style="min-height: 375px">
+								<canvas id="statisticsChart"></canvas>
+							</div>
+							<div id="statisticsChart"></div>
+						</div>
+						{% for client_element in client_image_stats %}
+						<div class="card-body">
+							<div class="chart-container" style="min-height: 375px">
+								<canvas id="{{client_element.client_name}}"></canvas>
+							</div>
+							<div id="{{client_element.client_name}}"></div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo.js"></script>
+	
+	<script>
+		Circles.create({
+			id:'circles-1',
+			radius:45,
+			value:60,
+			maxValue:100,
+			width:7,
+			text: 5,
+			colors:['#f1f1f1', '#FF9E27'],
+			duration:400,
+			wrpClass:'circles-wrp',
+			textClass:'circles-text',
+			styleWrapper:true,
+			styleText:true
+		})
+
+		Circles.create({
+			id:'circles-2',
+			radius:45,
+			value:70,
+			maxValue:100,
+			width:7,
+			text: 36,
+			colors:['#f1f1f1', '#2BB930'],
+			duration:400,
+			wrpClass:'circles-wrp',
+			textClass:'circles-text',
+			styleWrapper:true,
+			styleText:true
+		})
+
+		Circles.create({
+			id:'circles-3',
+			radius:45,
+			value:40,
+			maxValue:100,
+			width:7,
+			text: 12,
+			colors:['#f1f1f1', '#F25961'],
+			duration:400,
+			wrpClass:'circles-wrp',
+			textClass:'circles-text',
+			styleWrapper:true,
+			styleText:true
+		})
+
+		var totalClientChart = document.getElementById('totalClientChart').getContext('2d');
+
+		var mytotalClientChart = new Chart(totalClientChart, {
+			type: 'bar',
+			data: {
+				labels: {{ client_data.dtkeys|safe  }},
+				datasets : [{
+					label: "Image",
+					backgroundColor: '#ff9e27',
+					borderColor: 'rgb(23, 125, 255)',
+					data: {{ client_data.dtvalues|safe  }},
+				}],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				legend: {
+					display: false,
+				},
+				scales: {
+					yAxes: [{
+						ticks: {
+							display: false //this will remove only the label
+						},
+						gridLines : {
+							drawBorder: false,
+							display : false
+						}
+					}],
+					xAxes : [ {
+						gridLines : {
+							drawBorder: false,
+							display : false
+						}
+					}]
+				},
+			}
+		});
+
+
+		var totalRetailerChart = document.getElementById('totalRetailerChart').getContext('2d');
+
+		var mytotalRetailerChart = new Chart(totalRetailerChart, {
+			type: 'bar',
+			data: {
+				labels:  {{ retailer_data.dtkeys|safe  }},
+				datasets : [{
+					label: "Image",
+					backgroundColor: '#f54278',
+					borderColor: 'rgb(66, 185, 245)',
+					data: {{ retailer_data.dtvalues|safe  }},
+				}],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				legend: {
+					display: false,
+				},
+				scales: {
+					yAxes: [{
+						ticks: {
+							display: false //this will remove only the label
+						},
+						gridLines : {
+							drawBorder: false,
+							display : false
+						}
+					}],
+					xAxes : [ {
+						gridLines : {
+							drawBorder: false,
+							display : false
+						}
+					}]
+				},
+			}
+		});
+
+
+
+		$('#lineChart').sparkline([105,103,123,100,95,105,115], {
+			type: 'line',
+			height: '70',
+			width: '100%',
+			lineWidth: '2',
+			lineColor: '#ffa534',
+			fillColor: 'rgba(255, 165, 52, .14)'
+		});
+	</script>
+	<script>
+
+var ctx = document.getElementById('statisticsChart').getContext('2d');
+console.log("{{matchingstats.periods| safe}}");
+var datasets_algos = [];
+var algos = {{matchingstats.algos | safe}};
+console.log(algos);
+for (const [algo_name, value] of Object.entries(algos)) {
+	var r  = Math.random() * (150 - 1) + 1;
+	var g  = Math.random() * (200 - 100) + 100;
+	var b  = Math.random() * (255 - 150) + 150;
+	var randomColor = "#"+Math.floor(Math.random()*16777215).toString(16);
+  var algo_data = {
+			label: algo_name,
+			borderColor: randomColor,
+			pointBackgroundColor: 'rgba('+r+', '+g+', '+b+', 0.6)',
+			pointRadius: 0,
+			backgroundColor: 'rgba('+r+', '+g+', '+b+', 0.4)',
+			legendColor: randomColor,
+			fill: true,
+			borderWidth: 2,
+			data: value
+  };
+  datasets_algos.push(algo_data);
+}
+var statisticsChart = new Chart(ctx, {
+	type: 'line',
+	data: {
+		labels: {{matchingstats.periods | safe}},
+		datasets: datasets_algos,
+	},
+	options : {
+		responsive: true, 
+		maintainAspectRatio: false,
+		legend: {
+			display: true
+		},
+		tooltips: {
+			bodySpacing: 4,
+			mode:"nearest",
+			intersect: 0,
+			position:"nearest",
+			xPadding:10,
+			yPadding:10,
+			caretPadding:10
+		},
+		layout:{
+			padding:{left:5,right:5,top:15,bottom:15}
+		},
+		scales: {
+			yAxes: [{
+				ticks: {
+					fontStyle: "500",
+					beginAtZero: false,
+					maxTicksLimit: 5,
+					padding: 10
+				},
+				gridLines: {
+					drawTicks: false,
+					display: false
+				}
+			}],
+			xAxes: [{
+				gridLines: {
+					zeroLineColor: "transparent"
+				},
+				ticks: {
+					padding: 10,
+					fontStyle: "500"
+				}
+			}]
+		}, 
+		legendCallback: function(chart) { 
+			var text = []; 
+			text.push('<ul class="' + chart.id + '-legend html-legend">'); 
+			for (var i = 0; i < chart.data.datasets.length; i++) { 
+				text.push('<li><span style="background-color:' + chart.data.datasets[i].legendColor + '"></span>'); 
+				if (chart.data.datasets[i].label) { 
+					text.push(chart.data.datasets[i].label); 
+				} 
+				text.push('</li>'); 
+			} 
+			text.push('</ul>'); 
+			return text.join(''); 
+		}  
+	}
+});
+
+
+
+
+	</script>
+
+<script>
+	var multipleLineChart = document.getElementById('statisticsChart2').getContext('2d');
+	console.log("{{client_image_stats.periods| safe}}");
+	var datasets_retailers = [];
+	var retailers = {{client_image_stats.retailers | safe}};
+	console.log(retailers);
+	for (const [retailer_name, value] of Object.entries(retailers)) {
+		var r  = Math.random() * (150 - 1) + 1;
+		var g  = Math.random() * (160 - 100) + 100;
+		var b  = Math.random() * (200 - 150) + 150;
+		var randomColor = "#"+Math.floor(Math.random()*16777215).toString(16);
+	  var retailer_data = {
+				label: retailer_name,
+				borderColor: randomColor,
+				pointBorderColor: "#FFF",
+				pointBackgroundColor: randomColor,
+				pointBorderWidth: 2,
+				pointHoverRadius: 4,
+				pointHoverBorderWidth: 1,
+				pointRadius: 4,
+				backgroundColor: 'transparent',
+				fill: true,
+				borderWidth: 2,
+				data: value
+	  };
+	  datasets_retailers.push(retailer_data);
+	}
+	var client_name = "{{client_image_stats.client_name | safe}}";
+	console.log(client_name);
+	var statisticsChart = new Chart(multipleLineChart, {
+		type: 'line',
+		data: {
+			labels: {{client_image_stats.periods | safe}},
+			datasets: datasets_retailers,
+		},
+		
+		options : {
+			responsive: true, 
+			maintainAspectRatio: false,
+			legend: {
+				display: true
+			},
+			title: {
+                display: true,
+                text: client_name
+			},
+			tooltips: {
+				bodySpacing: 4,
+				mode:"nearest",
+				intersect: 0,
+				position:"nearest",
+				xPadding:10,
+				yPadding:10,
+				caretPadding:10
+			},
+			layout:{
+				padding:{left:5,right:5,top:15,bottom:15}
+			},
+			scales: {
+				yAxes: [{
+					ticks: {
+						fontStyle: "500",
+						beginAtZero: false,
+						maxTicksLimit: 5,
+						padding: 10
+					},
+					gridLines: {
+						drawTicks: false,
+						display: false
+					}
+				}],
+				xAxes: [{
+					gridLines: {
+						zeroLineColor: "transparent"
+					},
+					ticks: {
+						padding: 10,
+						fontStyle: "500"
+					}
+				}]
+			}, 
+			legendCallback: function(chart) { 
+				var text = []; 
+				text.push('<ul class="' + chart.id + '-legend html-legend">'); 
+				for (var i = 0; i < chart.data.datasets.length; i++) { 
+					text.push('<li><span style="background-color:' + chart.data.datasets[i].legendColor + '"></span>'); 
+					if (chart.data.datasets[i].label) { 
+						text.push(chart.data.datasets[i].label); 
+					} 
+					text.push('</li>'); 
+				} 
+				text.push('</ul>'); 
+				return text.join(''); 
+			}  
+		}
+	});
+	
+	
+	
+	
+		</script>
+
+
+<script>
+	var list_clients = {{client_image_stats| safe}};
+	list_clients.forEach(list_client => {
+		var client_name = list_client['client_name'];
+		console.log(client_name);
+		var multipleLineChart = document.getElementById(client_name).getContext('2d');
+		var datasets_retailers = [];
+		var retailers = list_client['retailers'];
+		for (const [retailer_name, value] of Object.entries(retailers)) {
+		var r  = Math.random() * (150 - 1) + 1;
+		var g  = Math.random() * (160 - 100) + 100;
+		var b  = Math.random() * (200 - 150) + 150;
+		var randomColor = "#"+Math.floor(Math.random()*16777215).toString(16);
+	  var retailer_data = {
+				label: retailer_name,
+				borderColor: randomColor,
+				pointBorderColor: "#FFF",
+				pointBackgroundColor: randomColor,
+				pointBorderWidth: 2,
+				pointHoverRadius: 4,
+				pointHoverBorderWidth: 1,
+				pointRadius: 4,
+				backgroundColor: 'transparent',
+				fill: true,
+				borderWidth: 2,
+				data: value
+	  };
+	  datasets_retailers.push(retailer_data);
+	}
+	var statisticsChart = new Chart(multipleLineChart, {
+		type: 'line',
+		data: {
+			labels: list_client.periods,
+			datasets: datasets_retailers,
+		},
+		
+		options : {
+			responsive: true, 
+			maintainAspectRatio: false,
+			legend: {
+				display: true
+			},
+			title: {
+                display: true,
+                text: client_name
+			},
+			tooltips: {
+				bodySpacing: 4,
+				mode:"nearest",
+				intersect: 0,
+				position:"nearest",
+				xPadding:10,
+				yPadding:10,
+				caretPadding:10
+			},
+			layout:{
+				padding:{left:5,right:5,top:15,bottom:15}
+			},
+			scales: {
+				yAxes: [{
+					ticks: {
+						fontStyle: "500",
+						beginAtZero: false,
+						maxTicksLimit: 5,
+						padding: 10
+					},
+					gridLines: {
+						drawTicks: false,
+						display: false
+					}
+				}],
+				xAxes: [{
+					gridLines: {
+						zeroLineColor: "transparent"
+					},
+					ticks: {
+						padding: 10,
+						fontStyle: "500"
+					}
+				}]
+			}, 
+			legendCallback: function(chart) { 
+				var text = []; 
+				text.push('<ul class="' + chart.id + '-legend html-legend">'); 
+				for (var i = 0; i < chart.data.datasets.length; i++) { 
+					text.push('<li><span style="background-color:' + chart.data.datasets[i].legendColor + '"></span>'); 
+					if (chart.data.datasets[i].label) { 
+						text.push(chart.data.datasets[i].label); 
+					} 
+					text.push('</li>'); 
+				} 
+				text.push('</ul>'); 
+				return text.join(''); 
+			}  
+		}
+	});
+	});
+
+
+	
+	
+	
+	
+	
+		</script>
+
+
+
+{% endblock javascripts %}

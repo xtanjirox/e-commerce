@@ -3,7 +3,10 @@ from .models import *
 
 # Register your models here.
 
-admin.register(Client)
-admin.register(Product)
-admin.register(Cart)
-admin.register(Order)
+admin.site.register(Client)
+admin.site.register(Product)
+admin.site.register(Cart)
+admin.site.register(Order)
+admin.site.register(Payment)
+admin.site.register(Discount)
+admin.site.register(Delivery)
