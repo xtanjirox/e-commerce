@@ -1,0 +1,7 @@
+<h1>{{ product.product_name }}</h1>
+<p>{{ product.product_code }}</p>
+<p>price: {{ product.product_price }}</p>
+<p>Published: {{ product.category }}</p>
+{% for inventory in inventories %}
+    <p>var: {{ inventory.variant.variant_name }} - {{ inventory.quantity }}</p>
+{% endfor %}

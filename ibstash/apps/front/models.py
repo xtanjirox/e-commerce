@@ -12,15 +12,43 @@ class Client(models.Model):
         db_table = 'client'
         unique_together = (('client_phone', 'client_name'))
 
+    def __str__(self):
+        return f'{self.client_name}_{self.client_phone}'
+
+
+class Variant(models.Model):
+    variant_name = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = 'variant'
+
+    def __str__(self):
+        return self.variant_name
+
+
+class Category(models.Model):
+    category_name = models.CharField(max_length=30)
+    variant = models.ManyToManyField(Variant)
+
+    class Meta:
+        db_table = 'category'
+
+    def __str__(self):
+        return self.category_name
+
 
 class Product(models.Model):
     product_code = models.IntegerField()
     product_name = models.CharField(max_length=50)
     product_price = models.FloatField(default=0)
     product_img = models.CharField(max_length=300, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'product'
+
+    def __str__(self):
+        return f'{self.product_code}_{self.product_name}'
 
 
 class Payment(models.Model):
@@ -29,6 +57,9 @@ class Payment(models.Model):
     class Meta:
         db_table = 'payment'
 
+    def __str__(self):
+        return self.payment_status
+
 
 class Discount(models.Model):
     discount_name = models.CharField(max_length=20)
@@ -36,12 +67,18 @@ class Discount(models.Model):
     class Meta:
         db_table = 'discount'
 
+    def __str__(self):
+        return self.discount_name
+
 
 class Delivery(models.Model):
     delivery_status = models.CharField(max_length=20)
 
     class Meta:
         db_table = 'delivery'
+
+    def __str__(self):
+        return self.delivery_status
 
 
 class Order(models.Model):
@@ -65,3 +102,13 @@ class Cart(models.Model):
 
     class Meta:
         db_table = 'cart'
+
+
+class Inventory(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    variant = models.ForeignKey(Variant, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'inventory'
+        unique_together = (('product', 'variant'), )
