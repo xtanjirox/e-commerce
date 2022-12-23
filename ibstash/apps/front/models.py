@@ -48,7 +48,7 @@ class Product(models.Model):
         db_table = 'product'
 
     def __str__(self):
-        return f'{self.product_code}_{self.product_name}'
+        return self.product_name
 
 
 class Payment(models.Model):
@@ -84,8 +84,8 @@ class Delivery(models.Model):
 class Order(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
-    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE)
-    discount = models.ManyToManyField(Discount)
+    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE, blank=True, null=True)
+    discount = models.ManyToManyField(Discount, blank=True, null=True)
     order_total_base = models.FloatField(default=0)
     order_total_discount = models.FloatField(default=0)
     create_date = models.DateTimeField(default=datetime.now())

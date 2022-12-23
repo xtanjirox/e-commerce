@@ -11,11 +11,22 @@
     <div class="page-inner">
         <iframe name="delete_retailer" style="display:none;"></iframe>
         <div class="page-header">&nbsp; &nbsp; &nbsp;
-            <h4 class="page-title">Products</h4>
-            </button>
+            <h4 class="page-title">{{ product.product_name }}</h4>
         </div>
+        <div class="row" style="margin-left: 25%;">
+            <div class="col-md-3">
+                <img src="{{ product.product_img }}"
+                     style="max-height: 200px;width: auto;">
+            </div>
+            <div class="col-md-6">
+                <h4 class="page-title">product name : {{ product.product_name }}</h4>
+                <h4 class="page-title">category : {{ product.category.category_name }}</h4>
+                <h4 class="page-title">price : {{ product.product_price }}</h4>
+            </div>
+        </div>
+        <div><p></p></div>
+        <div><p></p></div>
         <div class="row">
-
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
@@ -24,7 +35,7 @@
                             <button class="btn btn-primary btn-round ml-auto" data-toggle="modal"
                                     data-target="#addRowModal">
                                 <i class="fa fa-plus"></i>
-                                Add size
+                                Add/Update stock
                             </button>
                         </div>
                     </div>
@@ -48,22 +59,16 @@
                                             {% csrf_token %}
                                             <div class="row">
                                                 <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>Algorithm name</label>
-                                                        {{ inventory_form.product }}
-                                                    </div>
+                                                    <label>Algorithm name</label>
+                                                    {{ inventory_form.product }}
                                                 </div>
                                                 <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>Algorithm name</label>
-                                                        {{ inventory_form.variant }}
-                                                    </div>
+                                                    <label>Algorithm name</label>
+                                                    {{ inventory_form.variant }}
                                                 </div>
                                                 <div class="col-sm-12">
-                                                    <div class="form-group form-group-default">
-                                                        <label>Algorithm name</label>
-                                                        {{ inventory_form.quantity }}
-                                                    </div>
+                                                    <label>Algorithm name</label>
+                                                    {{ inventory_form.quantity }}
                                                 </div>
                                             </div>
                                         </form>
@@ -87,7 +92,7 @@
                                 <tbody>
                                 {% for inventory in inventories %}
                                 <tr>
-                                    <td>{{ inventory.variant.variant_name }}</td>
+                                    <td>{{ inventory.variant_name }}</td>
                                     <td>{{ inventory.quantity }}</td>
                                     <td>
                                         <div class="form-button-action">
@@ -95,12 +100,6 @@
                                                     class="btn btn-link btn-primary btn-lg"
                                                     data-original-title="Edit product">
                                                 <a href="/product/{{product.pk}}"> <i class="fa fa-edit"></i></a>
-                                            </button>
-                                            <button type="button" data-toggle="tooltip" title=""
-                                                    class="btn btn-link btn-primary btn-lg"
-                                                    data-original-title="delete product">
-                                                <a href="/product/{{product.pk}}/delete"> <i
-                                                        class="fa fa-trash"></i></a>
                                             </button>
                                         </div>
                                     </td>
@@ -130,6 +129,11 @@
 		var row_id = "#retailer_" + retailer_id;
 		$(row_id).remove();
 	}
+
+
+
+
+
 
 
 </script>
@@ -197,6 +201,11 @@
 			});
 		});
 	});
+
+
+
+
+
 
 
 
