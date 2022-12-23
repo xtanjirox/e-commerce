@@ -4,6 +4,7 @@ from django.views.generic.detail import DetailView
 from .models import (Client, Order, Product, Category, Inventory)
 from datetime import datetime
 from .forms import InventoryForm
+from django.db.models import Count, F
 
 
 # Clients Views
@@ -36,31 +37,29 @@ class ProductDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        product_id = kwargs.get('object').pk
-        context['inventories'] = Inventory.objects.filter(product_id=product_id)
-        context['inventory_form'] = InventoryForm(None)
+        product = kwargs.get('object')
+        product_id = product.pk
+        context['inventories'] = Inventory.objects.filter(product_id=product_id).annotate(
+            variant_name=F('variant__variant_name'))
+        context['inventory_form'] = InventoryForm(None,
+                                                  initial={'product': product})
         return context
 
     def post(self, request, *args, **kwargs):
-        form = InventoryForm(request.POST or None)
+        self.object = self.get_object()
+        context = super().get_context_data(**kwargs)
+        context['inventories'] = Inventory.objects.filter(product_id=self.object.pk)
+        context['inventory_form'] = InventoryForm(None, initial={'product': self.object})
+        form = InventoryForm(request.POST or None, initial={'product': self.object})
         if form.is_valid():
-            try:
-                form.save()
-                print("done")
-            except :
-                print("hello")
-            else:
-                print(kwargs)
-                self.object = self.get_object()
-                context = super().get_context_data(**kwargs)
-                context['inventories'] = Inventory.objects.filter(product_id=self.object.pk)
-                context['inventory_form'] = InventoryForm
-                return self.render_to_response(context=context)
-
+            form.save()
+            return self.render_to_response(context=context)
+        elif 'already exists.' in str(form.errors):
+            form_data = form.cleaned_data
+            Inventory.objects.filter(product=form_data.get('product'), variant=form_data.get('variant')).update(
+                quantity=form_data.get('quantity'))
+            return self.render_to_response(context=context)
         else:
-            self.object = self.get_object()
-            context = super(self).get_context_data(**kwargs)
-            context['inventory_form'] = form
             return self.render_to_response(context=context)
 
 
@@ -71,7 +70,7 @@ class ProductCreateView(CreateView):
     fields = ['product_name', 'product_price', 'product_img', 'category']
 
     def get_context_data(self, **kwargs):
-        kwargs['products'] = Product.objects.order_by('id')
+        kwargs['products'] = Product.objects.all().annotate(category_name=F('category__category_name'))
         return super(ProductCreateView, self).get_context_data(**kwargs)
 
     def form_valid(self, form):

@@ -8,118 +8,125 @@
 {% block content %}
 
 <div class="content">
-	<div class="page-inner">
-		<iframe name="delete_retailer" style="display:none;"></iframe>
-		<div class="page-header">&nbsp; &nbsp; &nbsp;
-			<h4 class="page-title">Products</h4>
-			</button>
-		</div>
-		<div class="row">
+    <div class="page-inner">
+        <iframe name="delete_retailer" style="display:none;"></iframe>
+        <div class="page-header">&nbsp; &nbsp; &nbsp;
+            <h4 class="page-title">Products</h4>
+            </button>
+        </div>
+        <div class="row">
 
-			<div class="col-md-12">
-				<div class="card">
-					<div class="card-header">
-						<div class="d-flex align-items-center">
-							<h4 class="card-title"></h4>
-							<button class="btn btn-primary btn-round ml-auto" data-toggle="modal"
-								data-target="#addRowModal">
-								<i class="fa fa-plus"></i>
-								Add product
-							</button>
-						</div>
-					</div>
-					<div class="card-body">
-						<!-- Modal -->
-						<div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
-							<div class="modal-dialog" role="document">
-								<div class="modal-content">
-									<div class="modal-header no-bd">
-										<h5 class="modal-title">
-											<span class="fw-mediumbold">New</span>
-											<span class="fw-light">Row</span>
-										</h5>
-										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-											<span aria-hidden="true">&times;</span>
-										</button>
-									</div>
-									<div class="modal-body">
-										<p class="small">Add new product</p>
-										<form method="POST" action="" id="formAddRetailer">
-											{% csrf_token %}
-											{{ form.as_p }}
-											<input type="submit" value="Save">
-										</form>
-									</div>
-									<div class="modal-footer no-bd">
-										<button type="button" id="addRowButton" class="btn btn-primary">Add</button>
-										<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-									</div>
-								</div>
-							</div>
-						</div>
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <h4 class="card-title"></h4>
+                            <button class="btn btn-primary btn-round ml-auto" data-toggle="modal"
+                                    data-target="#addRowModal">
+                                <i class="fa fa-plus"></i>
+                                Add product
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Modal -->
+                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header no-bd">
+                                        <h5 class="modal-title">
+                                            <span class="fw-mediumbold">New</span>
+                                            <span class="fw-light">Row</span>
+                                        </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="small">Add new product</p>
+                                        <form method="POST" action="" id="formAddRetailer">
+                                            {% csrf_token %}
+                                            {{ form.as_p }}
+                                            <input type="submit" value="Save">
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer no-bd">
+                                        <button type="button" id="addRowButton" class="btn btn-primary">Add</button>
+                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-						<div class="modal fade" id="deleteRowModal" tabindex="-1" role="dialog" aria-hidden="true">
-							<div class="modal-dialog" role="document">
-								<div class="modal-content">
-									<div class="modal-header no-bd">
-										<h5 class="modal-title">
-											<span class="fw-mediumbold">New</span>
-											<span class="fw-light">Row</span>
-										</h5>
-										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-											<span aria-hidden="true">&times;</span>
-										</button>
-									</div>
-								</div>
-							</div>
-						</div>
+                        <div class="modal fade" id="deleteRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header no-bd">
+                                        <h5 class="modal-title">
+                                            <span class="fw-mediumbold">New</span>
+                                            <span class="fw-light">Row</span>
+                                        </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
 
-						<div class="table-responsive">
-							<table id="add-row" class="display table table-striped table-hover">
-								<thead>
-									<tr>
-											<th>Product code</th>
-											<th>Product name</th>
-											<th>Product price</th>
-											<th>Category</th>
-										<th style="width: 10%">Action</th>
-									</tr>
-								</thead>
-								<tbody>
-										{% for product in products %}
-										<tr>
-											<td>{{ product.product_code }}</td>
-											<td>{{ product.product_name }}</td>
-											<td>{{ product.product_price }}</td>
-											<td>{{ product.category }}</td>
-											<td>
-												<div class="form-button-action">
-													<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit product">
-														<a href="/product/{{product.pk}}"> <i class="fa fa-edit"></i></a>
-													</button>
-													<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg"
-															data-original-title="delete product">
-														<a href="/product/{{product.pk}}/delete"> <i class="fa fa-trash"></i></a>
-													</button>
-												</div>
-											</td>
-										{% endfor %}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <div class="table-responsive">
+                            <table id="add-row" class="display table table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 50px;"></th>
+                                    <th>Product code</th>
+                                    <th>Product name</th>
+                                    <th>Product price</th>
+                                    <th>Category</th>
+                                    <th style="width: 10%">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td><img
+                                            src="{{ product.product_img }}"
+                                            style="max-width: 50px;height: auto;"></td>
+                                    <td>{{ product.product_code }}</td>
+                                    <td>{{ product.product_name }}</td>
+                                    <td>{{ product.product_price }}</td>
+                                    <td>{{ product.category_name }}</td>
+                                    <td>
+                                        <div class="form-button-action">
+                                            <button type="button" data-toggle="tooltip" title=""
+                                                    class="btn btn-link btn-primary btn-lg"
+                                                    data-original-title="Edit product">
+                                                <a href="/product/{{product.pk}}"> <i class="fa fa-edit"></i></a>
+                                            </button>
+                                            <button type="button" data-toggle="tooltip" title=""
+                                                    class="btn btn-link btn-primary btn-lg"
+                                                    data-original-title="delete product">
+                                                <a href="/product/{{product.pk}}/delete"> <i
+                                                        class="fa fa-trash"></i></a>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-
 
 
 <script src="/static/assets/js/setting-demo2.js"></script>
@@ -131,6 +138,7 @@
 		var row_id = "#retailer_" + retailer_id;
 		$(row_id).remove();
 	}
+
 </script>
 
 <script>
@@ -196,6 +204,7 @@
 			});
 		});
 	});
+
 </script>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
